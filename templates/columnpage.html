@@ -1,0 +1,153 @@
+<!-- Template page: offers three sections to visualize a 3 steps workflow.-->
+
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+        <!-- Left Rail -->
+        <div class="col-xl-3 col-md-3">
+        </div>
+        <!-- Left Rail -->
+        <div class="col-xl-6 col-md-6">
+            <div class="section" >
+                <div class="panel panel--loose panel--raised base-margin-bottom">
+                    <h2 class="subtitle">Step 1: Choose Context <!--CUSTOMIZE: Add headline of second step here--></h2>
+                    <form action="/columnpage" method="POST" name="get_tile">     
+                        <div class="section"> 
+
+                            <!--CUSTOMIZE: Change content, if no network selection or further fields are required -->
+                            <!--PASS INFO: dropdown_content = json string that includes all organization and networks of a user (format: see dropdown_content variable in app.py - columnpage())-->
+                                <!--Orga fields-->
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select">
+                                    <select name="module_select" id='module_select' required>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                        {% for module in dropdown_content %}<option value="{{module.modulename}}" {% if selected_elements.module == module.modulename %} selected {% endif %}>{{module.modulename}}</option>{% endfor %}
+                                    </select>
+                                    <label for="module_select">Module*</label>
+                                </div>
+                            </div>
+
+                                <!--Network fields-->
+                            {% for module in dropdown_content %}
+                                <div id="{{module.modulename}}" class="tile-select" {% if selected_elements.module != module.modulename %} hidden {% endif %}>
+                                    <div class="form-group base-margin-bottom">
+                                        <div class="form-group__text select">
+                                            <select name="tile" class='tiles'>
+                                                <option disabled selected hidden value="0">Please choose...</option>
+                                                {% for tile in module['tiles'] %}
+                                                    <option value="{{tile['tile']}}" {% if selected_elements.tile == tile['tile'] %} selected {% endif %}>{{tile['tile']}}</option>                                                      
+                                                {% endfor %}
+                                            </select>
+                                            <label for="tile">Tile*</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select">
+                                    <select name="period_select" id='period_select' required>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                        <option value="last_24_hours">24 hours</option>
+                                        <option value="last_7_days">7 days</option>
+                                        <option value="last_30_days">30 days</option>
+                                    </select>
+                                    <label for="period_select">Period*</label>
+                                </div>
+                            </div>
+                            <!-- CUSTOMIZATION END -->
+                        
+                        <span class="required-label pull-right">* required fields</span>
+                        </div> 
+                        <input id="tile_selection" onclick="showLoadingText()" onload="showOriginalText('Save')" class="btn btn-primary" type="submit" value="Save & Run">
+                        <button id="add-item-button" class="btn btn-primary" type="button">Add Item</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-3">
+            <div class="responsive-table">
+                <form id="item-form" action="/columnpage" method="POST">
+                    <table id="item-table" class="table table--lined table--selectable table">
+                        <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Tile</th>
+                            <th>Period</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#add-item-button").click(function(){
+            var add_module = $("#module_select").val();
+            var add_tile = $("#" + add_module + " .tiles").val();
+            var add_period = $("#period_select").val();
+            console.log(add_tile);
+
+            var duplicate = false;
+            $("#item-table tbody tr").each(function() {
+                if ($(this).children().eq(0).text() == add_module &&
+                    $(this).children().eq(1).text() == add_tile &&
+                    $(this).children().eq(2).text() == add_period) {
+                    duplicate = true;
+                    return false;
+                }
+            });
+
+            if (duplicate) {
+                alert("This item already exists in the table!");
+                return;
+            }
+
+            $("#item-table tbody").append(
+                '<tr>'+
+                    '<td>'+add_module+'</td>' +
+                    '<td>'+add_tile+'</td>' +
+                    '<td>'+add_period+'</td>' +
+                '</tr>'
+            );
+            $("#module_select").val("0");
+            $(".tiles").val("0");
+            $("#period_select").val("0");
+        });
+
+        $("#item-form").submit(function(event) {
+            event.preventDefault();
+
+            // Prepare the items data to be sent to the server
+            var items = [];
+            $("#item-table tbody tr").each(function() {
+            var module = $(this).find("td:nth-child(1)").text();
+            var tile = $(this).find("td:nth-child(2)").text();
+            var period = $(this).find("td:nth-child(3)").text();
+            items.push({
+                module: module,
+                tile: tile,
+                period: period
+            });
+            });
+
+            // Append the items data as a hidden input to the form
+            var itemsInput = $('<input type="hidden" name="items">');
+            itemsInput.val(JSON.stringify(items));
+            $("#item-form").append(itemsInput);
+
+            // Submit the form to the specified URL
+            $("#item-form").get(0).submit();
+        });
+    });
+</script>
+{%  endblock %}

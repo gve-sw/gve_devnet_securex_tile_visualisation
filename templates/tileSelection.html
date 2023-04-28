@@ -1,0 +1,186 @@
+<!-- Template page: offers three sections to visualize a 3 steps workflow.-->
+ <!-- Left Rail -->
+        <!-- Middle Rail -->
+        <!-- <div class="col-xl-6 col-md-6">
+            <div class="section" >
+                <div class="panel panel--loose panel--raised base-margin-bottom">
+                    <h2 class="subtitle">Choose Tiles </h2>
+                    <form action="/chartselection" method="POST" name="get_tile">     
+                        <div class="section"> 
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select">
+                                    <select name="customer" id="customer" required>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                        <option value="customer1">Customer 1</option>
+                                        <option value="customer2">Customer 2</option>
+                                    </select>
+                                    <label for="customer">Customer*</label>
+                                </div>
+                            </div>  
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select">
+                                    <select name="module_select" id='module_select' required>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                        {% for module in dropdown_content %}<option value="{{module.modulename}}" {% if selected_elements.module == module.modulename %} selected {% endif %}>{{module.modulename}}</option>{% endfor %}
+                                    </select>
+                                    <label for="module_select">Module*</label>
+                                </div>
+                            </div>
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select">
+                                    <select name="tile" class='tiles'>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                    </select>
+                                    <label for="tile">Tile*</label>
+                                </div>
+                            </div>
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select">
+                                    <select name="period_select" id='period_select' required>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                        <option value="last_24_hours">24 hours</option>
+                                        <option value="last_7_days">7 days</option>
+                                        <option value="last_30_days">30 days</option>
+                                    </select>
+                                    <label for="period_select">Period*</label>
+                                </div>
+                            </div>
+                        
+                        <span class="required-label pull-right">* required fields</span>
+                        0<
+                        ./div> 
+                        <button id="add-item-button" class="btn btn-primary" type="button">Add Item</button>
+                    </form>                    
+                </div>
+            </div>
+        </div> -->
+
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+        <div class="col-xl-2 col-md-2"></div>
+        <div class="col-xl-4 col-md-4">
+            <div class="section">
+                <div class="panel panel--loose panel--raised base-margin-bottom">
+                    <h3>Tile Selection</h3>
+                    <form id="item-form" action="/save_selections" method="POST">
+                        <div class="tiles-container">
+                            <!-- {% for client_name, client_modules in all_client_tiles.items() %}
+                                <br>
+                                <h5><u>{{ client_name }}</u></h5>
+                                <br>
+                                <div class="tiles-wrapper">
+                                    {% for module in client_modules %}
+                                    <h6>{{ module.modulename }}</h6>
+                                        <input type="checkbox" name="selct_all_module" class="select-all-module" id="select-all-{{ loop.index }}-module">
+                                        <label for="select-all-{{ loop.index }}-module"><u>{{ module.modulename }} - Select All For Module</u></label> -->
+                                        <!-- {% for tile in module.tiles %}
+                                            <div class="tile-item">
+                                                <input type="checkbox" name="tiles" value="{{ tile.tile_id }}" data-tile-name="{{ tile.tile }}" id="tile-{{ tile.tile_id }}">
+                                                <label for="tile-{{ tile.tile_id }}">{{ tile.tile }}</label>
+                                            </div>
+                                        {% endfor %}
+                                        <br>
+                                    {% endfor %}
+                                    <input type="checkbox" name="select_all" class="select-all" id="select-all-{{ loop.index }}">
+                                    <label for="select-all-{{ loop.index }}"><b>Select All Tiles</b></label>
+                                </div>
+                            {% endfor %} -->
+                            {% for client_name, client_tiles in all_client_tiles.items() %}
+                            <br>
+                            <h6>{{ client_name }}</h6>
+                            <div class="tiles-wrapper">
+                                {% for module in client_tiles %}
+                                    <h6>{{ module.modulename }}</h6>
+                                    {% for tile in module.tiles %}
+                                        <div class="tile-item">
+                                            <input type="checkbox" name="tiles" value="{{ tile.tile_id }}" data-client-name="{{ client_name }}" data-tile-name="{{ tile.tile }}" data-module-name="{{ module.modulename }}" id="tile-{{ tile.tile_id }}">
+                                            <label for="tile-{{ tile.tile_id }}">{{ tile.tile }}</label>
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                                <br>
+                                <input type="checkbox" name="select_all" class="select-all" id="select-all-{{ loop.index }}">
+                                <label for="select-all-{{ loop.index }}"><b>Select All Tiles</b></label>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="form-group__text select">
+                                        <select name="period_select" id='period_select' required>
+                                            <option disabled selected hidden value="0">Select Period...</option>
+                                            <option value="last_24_hours">24 hours</option>
+                                            <option value="last_7_days">7 days</option>
+                                            <option value="last_30_days">30 days</option>
+                                        </select>
+                                        <label for="period_select">Period*</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <button id="add-item-button" class="btn btn-primary" type="button">Add Selections</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-4">
+            <div class="section">
+                <div class="panel panel--loose panel--raised base-margin-bottom">
+                    <h2 class="subtitle">Selected Tiles</h2>
+                    <br>
+                    <div class="responsive-table">
+                        <form id="selected-items-form" action="/save_selections" method="POST">
+                            <input type="hidden" id="json-data" name="json_data">
+                            <!-- Updated input field with the same style as other fields -->
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text">
+                                    <input type="text" name="selection_name" id="selection_name" required>
+                                    <label for="selection_name">Selection Name*</label>
+                                </div>
+                            </div>
+                            <table id="item-table" class="table table--lined table--selectable table">
+                                <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Module</th>
+                                    <th>Tile</th>
+                                    <th>Period</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <br>
+                            <button type="submit" class="button button--secondary">Save Selections</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <script>
+        window.dropdownContent = {{ all_client_tiles|tojson }};
+    </script>
+    <style>
+        #selection_name {
+            margin-bottom: 1rem;
+        }
+    
+        #item-table {
+            margin-top: 1rem;
+        }
+    </style>
+    <script src="static/js/selects.js"></script>
+    <script src="static/js/selected.js"></script>        
+{%  endblock %}

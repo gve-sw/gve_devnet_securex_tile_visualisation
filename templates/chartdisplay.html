@@ -1,0 +1,307 @@
+<!--Charts: Overview of line chart UI components-->
+
+{% extends "masterPage.html" %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="section">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="panel panel--loose panel--raised base-margin-bottom">
+                        <h2 style="text-align:center" class="subtitle">SecureX Tiles</h2>
+                        <hr>
+                        <div class="section">
+                            <div class="row">
+                                {% for tile in selected_tiles_data %}
+                                {% if 'value1' not in tile['tile_data'] or tile['tile_data']['value1'] == 0 or tile['tile_data']['columns'] and not tile['tile_data']['rows'] %}
+                                <div class="col-md-4">
+                                    <div class="chart-container">
+                                        <div class="chart_title">
+                                            {{ tile['tile'] | safe }} - {{ tile['client'] | safe }}
+                                        </div>
+                                        <div class="chart_period">
+                                            {{ tile['period'] | safe }}
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-center image-container" style="margin-bottom:20px;">
+                                        <!--<img id="customer-logo" src="{{ url_for('static',filename='images/CUSTOMIZE: Move picture into IMAGES folder and fill in imagename.type here') }}"></img>-->
+                                        <img id="generic_image" src="{{ url_for('static', filename='images/time_period_icon.png') }}">
+                                    </div>
+                                    <div class="alert" style="font-weight:550">
+                                        <p>No data detected during this time frame.</p>
+                                    </div>
+                                    <div class="alert alert--info">
+                                        <div class="alert__icon icon-info-outline"></div>
+                                        <div class="alert__message">
+                                            <!--CUSTOMIZE-->
+                                            <i> Suggestion: select a longer time period.</i>
+                                            <!--CUSTOMIZE END-->
+                                        </div>
+                                    </div>
+                                </div>
+                                {% elif tile['tile_data']['columns'] %}
+                                <div class="col-md-4">
+                                    <canvas id="chart-{{ loop.index }}" width="400" height="400"></canvas>
+                                    <script>
+                                    var ctx = document.getElementById('chart-{{ loop.index }}').getContext('2d');
+                                    var columnLabels = {{ tile['tile_data']['columns'] | safe }};
+                                    var columnRows = {{ tile['tile_data']['rows'] | safe }};
+                                    var backgroundColors = [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)'
+                                    ];
+                                    var borderColors = [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)'
+                                    ];
+                                
+                                    // Prepare the data for Chart.js
+                                    var datasets = columnLabels.map(function(label, index) {
+                                        var data = columnRows.map(function(row) {
+                                            return row[label.key];
+                                        });
+                                
+                                        return {
+                                            label: label.label,
+                                            data: data,
+                                            backgroundColor: backgroundColors[index % backgroundColors.length],
+                                            borderColor: borderColors[index % borderColors.length],
+                                            borderWidth: 1
+                                        };
+                                    });
+                                
+                                    var myChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: columnRows.map(function(row) { return row[columnLabels[0].key]; }),
+                                            datasets: datasets
+                                        },
+                                        options: {
+                                            scales: {
+                                                yAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: '{{ tile['tile'] | safe}} - {{ tile['client'] | safe }}',
+                                                    font: {
+                                                        size: 14
+                                                    }
+                                                },
+                                                subtitle: {
+                                                    display: true,
+                                                    text: '{{ tile['period'] | safe}}',
+                                                    font: {
+                                                        size: 13,
+                                                        style: 'italic'
+                                                    },
+                                                    padding: {
+                                                        bottom: 20
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    </script>
+                                </div>
+                                
+                                {% elif tile['tile_data']['single_line'] %}
+                                <div class="col-md-4">
+                                    <canvas id="chart-{{ loop.index }}" width="400" height="400"></canvas>
+                                    <script>
+                                        var ctx = document.getElementById('chart-{{ loop.index }}').getContext('2d');
+                                        var myChart = new Chart(ctx, {
+                                        type: 'line',
+                                        data: {
+                                            labels: {{ tile['timestamps'] | safe }},
+                                            datasets: [
+                                                {
+                                                    label: 'Blocks',
+                                                    data: {{ tile['tile_data']['value1'] | safe }},
+                                                    fill: true,
+                                                    borderColor: 'rgb(54, 162, 235)',
+                                                    backgroundColor: 'rgb(54, 162, 235, 0.2)'
+                                                },
+                                            ]
+                                        },
+                                        options: {
+                                            scales: {
+                                                yAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: '{{ tile['tile'] | safe }} - {{ tile['client'] | safe }}',
+                                                    font: {
+                                                        size: 14
+                                                    }
+                                                },
+                                                subtitle: {
+                                                    display: true,
+                                                    text: '{{ tile['period'] | safe }}',
+                                                    font: {
+                                                        size: 13,
+                                                        style: 'italic'
+                                                    },
+                                                    padding: {
+                                                        bottom: 20
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    </script>
+                                </div>
+
+                                {% elif tile['tile_data']['multi_line'] %}
+                                <div class="col-md-4">
+                                    <canvas id="chart-{{ loop.index }}" width="400" height="400"></canvas>
+                                    <script>
+                                        var ctx = document.getElementById('chart-{{ loop.index }}').getContext('2d');
+                                        var myChart = new Chart(ctx, {
+                                        type: 'line',
+                                        data: {
+                                            labels: {{ tile['timestamps'] | safe }},
+                                            datasets: [
+                                                {
+                                                    label: '{{ tile['tile_data']['label1'] | safe }}',
+                                                    data: {{ tile['tile_data']['value1'] | safe }},
+                                                    fill: true,
+                                                    borderColor: 'rgb(54, 162, 235)',
+                                                    backgroundColor: 'rgb(54, 162, 235, 0.2)'
+                                                },
+                                                {
+                                                    label: '{{ tile['tile_data']['label2'] | safe }}',
+                                                    data: {{ tile['tile_data']['value2'] | safe }},
+                                                    fill: true,
+                                                    borderColor: 'rgba(255, 99, 132)',
+                                                    backgroundColor: 'rgb(255, 99, 132, 0.5)'
+                                                }
+                                            ]
+                                        },
+                                        options: {
+                                            scales: {
+                                                yAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: '{{ tile['tile'] | safe }} - {{ tile['client'] | safe }}',
+                                                    font: {
+                                                        size: 14
+                                                    }
+                                                },
+                                                subtitle: {
+                                                    display: true,
+                                                    text: '{{ tile['period'] | safe }}',
+                                                    font: {
+                                                        size: 13,
+                                                        style: 'italic'
+                                                    },
+                                                    padding: {
+                                                        bottom: 20
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+
+                                    </script>
+                                </div>
+
+                                {% else %}
+                                <div class="col-md-4">
+                                    <canvas id="chart-{{ loop.index }}" width="400" height="400"></canvas>
+                                    <script>
+                                    var ctx = document.getElementById('chart-{{ loop.index }}').getContext('2d');
+                                    var myChart = new Chart(ctx, {
+                                        type: 'doughnut',
+                                        data: {
+                                            labels: ['{{ tile['tile_data']['label1'] | safe }}', '{{ tile['tile_data']['label2'] | safe }}'],
+                                            datasets: [{
+                                                label: '# of Requests',
+                                                data: [{{ tile['tile_data']['value1'] | safe }}, {{ tile['tile_data']['value2'] | safe }}],
+                                                backgroundColor: [
+                                                    'rgba(75, 192, 192, 0.2)',
+                                                    'rgba(153, 102, 255, 0.2)',
+                                                    'rgba(255, 159, 64, 0.2)',
+                                                    'rgba(255, 99, 132, 0.2)',
+                                                    'rgba(54, 162, 235, 0.2)',
+                                                    'rgba(255, 206, 86, 0.2)'
+                                                ],
+                                                borderColor: [
+                                                    'rgba(75, 192, 192, 1)',
+                                                    'rgba(153, 102, 255, 1)',
+                                                    'rgba(255, 159, 64, 1)',
+                                                    'rgba(255, 99, 132, 1)',
+                                                    'rgba(54, 162, 235, 1)',
+                                                    'rgba(255, 206, 86, 1)'
+                                                ],
+                                                borderWidth: 1,
+                                                fill:true,
+                                            }]
+                                        },
+                                        options: {
+                                            scales: {
+                                                yAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            plugins: {
+                                                title: {
+                                                    display: true,
+                                                    text: '{{ tile['tile'] | safe}} - {{ tile['client'] | safe }}',
+                                                    font: {
+                                                        size: 14
+                                                    }
+                                                },
+                                                subtitle: {
+                                                    display: true,
+                                                    text: '{{ tile['period'] | safe}}',
+                                                    font: {
+                                                        size: 13,
+                                                        style: 'italic'
+                                                    },
+                                                    padding: {
+                                                        bottom: 20
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
+                                    </script>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

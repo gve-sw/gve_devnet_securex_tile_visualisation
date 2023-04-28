@@ -1,0 +1,14 @@
+{
+  "clients": [
+    {
+      "client_name": "<name-of-your-org/tenant/client>",
+      "client_id": "<associated-client-id>",
+      "client_secret": "<associated-client-secret>"
+    },
+    {
+      "client_name": "<name-of-your-org/tenant/client>",
+      "client_id": "<associated-client-id>",
+      "client_secret": "<associated-client-secret>"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{% extends "masterPage.html" %}
+
+{% block content %}
+    <div class="row">
+            <div class="col-md-4">
+                <div class="section">
+                    <div class="flex-center-vertical">
+                        <h1>Saved Configurations <!--CUSTOMIZE: Add headline page here--></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+
+            </div>
+            <div class="col-md-1">
+                <div class="section">
+                    <div class="form-group">
+                        <button id="create-selection-button" class="btn btn-primary" type="button" onclick="window.location.href='/tileSelection'">Create Config</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <!--CUSTOMIZE: Change table content as needed -->
+        <form id="config-form" method="POST" action="{{url_for('config_selection')}}">
+            <div class="responsive-table">
+                <table class="table table--lined table--selectable table">
+                    <thead>
+                        <tr>
+                            <th>Name of Configuration</th>
+                            <th>Date Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for selection in saved_selections %}
+                        <tr>
+                            <td>
+                                <div class="config-item">
+                                    <input type="radio" name="selection" value="{{ selection.title }}">
+                                    <label for="config-{{ selection.title }}">{{ selection.title }}</label>
+                                </div>
+                            </td>
+                            <td>{{ selection.creation_date }}</td> 
+                            <!-- <td>
+                                <form method="POST" action="{{ url_for('config_selection') }}">
+                                    <input type="hidden" name="selection" value="{{ selection.title }}">
+                                    <input type="submit" value="Load">
+                                </form>
+                            </td> -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <!--CUSTOMIZE END-->
+            </div>
+            <br>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <button type="submit" id="load-button" class="btn btn-primary">Load Configuration</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{%  endblock %}
